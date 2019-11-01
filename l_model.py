@@ -68,7 +68,7 @@ def generate_text(seed_text, num_lines, path_to_model, max_sequence_len):
             # Convert seed text to a sequence
             seed_seq = tokenizer.texts_to_sequences([seed_text])[0]
             # Pad to match max_seq_len
-            seed_seq = pad_sequences([seed_seq], maxlen=max_sequence_len -, padding='pre')
+            seed_seq = pad_sequences([seed_seq], maxlen=max_sequence_len -1, padding='pre')
             # Predict next word given the sequence
             predicted = model.predict_classes(seed_seq, verbose=0)
 
