@@ -16,8 +16,19 @@ def load_json_data(data):
 
 # Data preprocessing       
 def data_prep(corpus):
+    # Remove repeating/similar lines from songs
     for song in corpus:
-        tokenizer.fit_on_texts(set(song['lyric']))
+        lyric = song['lyric']
+        filtered = [lyric[0]]
+        for line in lyric[1:]:
+            update = True
+            for ex in filtered:
+                if jellyfish.jaro_distance(line,ex) > 0.75:
+                    update = False
+                    break
+            if update:
+                filtered.append(line)
+        tokenizer.fit_on_texts(filtered)
     # Convert each line to a numeric sequence
     input_seq = []
     for song in corpus:
@@ -43,6 +54,7 @@ def data_prep(corpus):
 
 tokenizer = Tokenizer()
 
+        
 X, y, max_seq_len, total_words = data_prep(load_json_data('rh_lyrics.json'))
 
 # Create model
@@ -68,7 +80,7 @@ def generate_text(seed_text, num_lines, path_to_model, max_sequence_len):
             # Convert seed text to a sequence
             seed_seq = tokenizer.texts_to_sequences([seed_text])[0]
             # Pad to match max_seq_len
-            seed_seq = pad_sequences([seed_seq], maxlen=max_sequence_len -, padding='pre')
+            seed_seq = pad_sequences([seed_seq], maxlen=max_sequence_len -1, padding='pre')
             # Predict next word given the sequence
             predicted = model.predict_classes(seed_seq, verbose=0)
 
